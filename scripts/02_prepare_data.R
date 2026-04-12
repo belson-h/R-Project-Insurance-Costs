@@ -3,6 +3,13 @@ glimpse(costs_raw)
 summary(costs_raw)
 colSums(is.na(costs_raw))
 
+# Missing values in:
+# bmi (num) - 28
+# exercise_level (cat) - 22
+# annual_checkups (num) - 20
+
+# Missing values will be....manage NA - e.g impute or ignore them in calculations
+
 costs_raw |> 
   count(sex)
 costs_raw |> 
@@ -53,12 +60,26 @@ costs |>
 costs |> 
   count(plan_type)
 
-# manage NA - e.g impute or ignore them in calculations
 
-# create new variables here
+# ----------------------
+# new variables:
 
+# age_groups
 costs <- costs |> 
   mutate(
-    ...
+    age_group = case_when(
+      age >= 18 & age <= 30 ~ "18-30",
+      age >= 31 & age <= 40 ~ "31-40",
+      age >= 41 & age <= 50 ~ "41-50",
+      age >= 51 & age <= 60 ~ "51-60",
+      age >= 61 & age <= 75 ~ "61-75",
+      TRUE ~ NA_character_
+    ),
+    age_group = factor(
+      age_group,
+      levels = c("18-30", "31-40", "41-50", "51-60", "61-75"),
+      ordered = TRUE
+    )
   )
+
 
