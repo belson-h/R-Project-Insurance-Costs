@@ -26,11 +26,11 @@ The company has collected information about customers, lifestyle factors, health
 
 ### Scripts
 
--   01_load_data.R
+-   01_load_data.R - data loaded from a csv-file
 
--   02_prepare_data.R
+-   02_prepare_data.R - cleaning and transformation
 
--   03_eda.R
+-   03_descriptive_analysis.R - statistical
 
 -   04_regression analysis.R
 
@@ -38,11 +38,11 @@ The company has collected information about customers, lifestyle factors, health
 
 ### Output
 
--   ...
+....
 
 ### Report
 
--   ....
+-   insurance_costs_report.qmd
 
 ## Important libraries
 
@@ -50,4 +50,8 @@ The company has collected information about customers, lifestyle factors, health
 
 ## How to run the project
 
-Open project in RStudio and run `run_analysis.R`.
+1.  Open project in RStudio and run `run_analysis.R`.
+
+<!-- -->
+
+2.  Read `insurance_cost_report.qmd` for...

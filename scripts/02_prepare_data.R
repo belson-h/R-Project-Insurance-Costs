@@ -8,7 +8,7 @@ colSums(is.na(costs_raw))
 # exercise_level (cat) - 22
 # annual_checkups (num) - 20
 
-# Missing values will be....manage NA - e.g impute or ignore them in calculations
+# Missing values will be ignored them in calculations
 
 costs_raw |> 
   count(sex)
@@ -23,7 +23,7 @@ costs_raw |>
 costs_raw |> 
   count(plan_type)
 
-
+# cleaning and transformation steps (adding age_group as new variable)
 costs <- costs_raw |> 
   mutate(
     sex =               str_trim(sex),
@@ -44,28 +44,7 @@ costs <- costs_raw |>
     chronic_condition = as.factor(chronic_condition),
     exercise_level =    as.factor(exercise_level),
     plan_type =         as.factor(plan_type)
-  )
-
-
-costs |> 
-  count(sex)
-costs |> 
-  count(region)
-costs |> 
-  count(smoker)
-costs |> 
-  count(chronic_condition)
-costs |> 
-  count(exercise_level)
-costs |> 
-  count(plan_type)
-
-
-# ----------------------
-# new variables:
-
-# age_groups
-costs <- costs |> 
+  ) |> 
   mutate(
     age_group = case_when(
       age >= 18 & age <= 30 ~ "18-30",
@@ -81,5 +60,22 @@ costs <- costs |>
       ordered = TRUE
     )
   )
+  
+# validating cleaning steps
+costs |> 
+  count(sex)
+costs |> 
+  count(region)
+costs |> 
+  count(smoker)
+costs |> 
+  count(chronic_condition)
+costs |> 
+  count(exercise_level)
+costs |> 
+  count(plan_type)
+
+
+  
 
 
