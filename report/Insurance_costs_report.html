@@ -60,27 +60,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="Insurance_costs_report_files/libs/clipboard/clipboard.min.js"></script>
-<script src="Insurance_costs_report_files/libs/quarto-html/quarto.js" type="module"></script>
-<script src="Insurance_costs_report_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="Insurance_costs_report_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="Insurance_costs_report_files/libs/quarto-html/popper.min.js"></script>
-<script src="Insurance_costs_report_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="Insurance_costs_report_files/libs/quarto-html/anchor.min.js"></script>
-<link href="Insurance_costs_report_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="Insurance_costs_report_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="Insurance_costs_report_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="Insurance_costs_report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="Insurance_costs_report_files/libs/bootstrap/bootstrap-514981598f886405bc67e039c5001fd5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="insurance_costs_report_files/libs/clipboard/clipboard.min.js"></script>
+<script src="insurance_costs_report_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="insurance_costs_report_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="insurance_costs_report_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="insurance_costs_report_files/libs/quarto-html/popper.min.js"></script>
+<script src="insurance_costs_report_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="insurance_costs_report_files/libs/quarto-html/anchor.min.js"></script>
+<link href="insurance_costs_report_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="insurance_costs_report_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="insurance_costs_report_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="insurance_costs_report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="insurance_costs_report_files/libs/bootstrap/bootstrap-514981598f886405bc67e039c5001fd5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
 
-<body class="quarto-light">
+<body class="fullcontent quarto-light">
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="Insurance_costs_report.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></div>
+
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -118,18 +117,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>This report presents an analysis of insurance cost data with the aim of identifying which factors are most strongly associated with individual insurance charges. The dataset contains information on customer demographics, lifestyle factors, health-related variables, and insurance history.</p>
 <p>The purpose of this analysis is twofold: first, to explore and describe patterns in the data through statistical summaries and visualizations; and second, to build a regression model that can help explain variation in insurance costs and potentially serve as a support tool in future pricing decisions.</p>
+<p>The data set contains information about customer_id, age, sex, region, bmi, children, smoker, chronic_condition, exercise_level, plan_type, prior_accidents, prior_claims, annual_checkups and charges.</p>
 </section>
 <section id="method" class="level2">
 <h2 class="anchored" data-anchor-id="method">Method</h2>
 <p>The analysis was conducted in R and structured across three main stages: data preparation, descriptive analysis, and regression modeling.</p>
 <section id="data-preparations" class="level3">
 <h3 class="anchored" data-anchor-id="data-preparations">Data Preparations</h3>
-<p>The dataset was loaded using the <code>readr</code> package and initially inspected using <code>glimpse()</code> and <code>summary()</code> to understand its structure and variable types. Missing values were identified in three variables: <strong>bmi</strong> (28 missing), <strong>exercise_level</strong> (22 missing), and <strong>annual_checkups</strong> (20 missing). These were retained in the dataset and excluded on a case-by-case basis in calculations.</p>
-<p>Categorical variables were standardized by trimming whitespace and applying consistent title case formatting, before being converted to factors. A new ordered variable, <code>age_group</code>, was created by binning age into five intervals (18–30, 31–40, 41–50, 51–60, 61–75) to support group-level comparisons in the descriptive analysis.</p>
+<p>The data set was loaded using the <code>readr</code> package and initially inspected using <code>glimpse()</code> and <code>summary()</code> to understand its structure and variable types. Missing values were identified in three variables: <strong>bmi</strong> (28 missing), <strong>exercise_level</strong> (22 missing), and <strong>annual_checkups</strong> (20 missing). These were retained in the dataset and excluded on a case-by-case basis in calculations.</p>
+<p>Categorical variables were standardized by trimming whitespace and applying consistent title case formatting, before being converted to factors. A new ordered variable, <code>age_group</code>, was created by binning age into five intervals (18–30, 31–40, 41–50, 51–60, 61–75) to support group-level comparisons in the descriptive analysis. In addition, a derived variable, <code>risk_group</code>, was created to capture combined risk based on prior insurance history. This variable combines <em>prior_claims</em> and <em>prior_accidents</em> into a single categorical measure. Policyholders with no prior claims or accidents were classified as <strong>Low</strong> risk, those with two or more claims or accidents as <strong>High</strong> risk, and all others as <strong>Medium</strong> risk.</p>
 </section>
 <section id="descriptive-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="descriptive-analysis">Descriptive Analysis</h3>
-<p>Summary statistics for the target variable <strong>charges</strong> were computed, including mean, median, standard deviation, min, max, and interquartile range. A range of visualizations were also produced using <code>ggplot2</code> to explore the distribution of charges and its relationship with key variables. For the purpose of this report, only the most relevant findings are presented and discussed in the result section next.</p>
+<p>Summary statistics for the target variable <strong>charges</strong> were computed, including mean, median, standard deviation, min, max, and interquartile range. A range of visualizations were also produced using <code>ggplot2</code> to explore the distribution of charges and its relationship with key variables. For the purpose of this report, only the most relevant findings for further analysis are presented and discussed in the result section.</p>
 </section>
 </section>
 <section id="results" class="level2">
@@ -214,7 +214,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insurance_costs_report_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="insurance_costs_report_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -238,7 +238,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insurance_costs_report_files/figure-html/Charges%20by%20insurance%20plan%20type-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="insurance_costs_report_files/figure-html/Charges%20by%20insurance%20plan%20type-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -260,7 +260,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insurance_costs_report_files/figure-html/Charges%20by%20smoking%20status-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="insurance_costs_report_files/figure-html/Charges%20by%20smoking%20status-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -282,7 +282,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insurance_costs_report_files/figure-html/Charges%20by%20chronic%20condition-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="insurance_costs_report_files/figure-html/Charges%20by%20chronic%20condition-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -304,25 +304,47 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insurance_costs_report_files/figure-html/Charges%20by%20age%20group-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="insurance_costs_report_files/figure-html/Charges%20by%20age%20group-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Charges show a clear upward trend across age groups, with median charges rising steadily from around 8,000 in the 18–30 group to approximately 12,000 in the 61-75 group. The spread also widens in older groups, particularly in the 61-75 bracket, suggesting greater variability in costs among older customers. This pattern aligns with the expectation that age is positively associated with insurance charges and indicates it will likely be a meaningful predictor in the regression model.</p>
 </section>
-</section>
-<section id="continuous-predictors-and-charges" class="level3">
-<h3 class="anchored" data-anchor-id="continuous-predictors-and-charges">Continuous predictors and charges</h3>
-<section id="age-against-charges-with-smoking-status" class="level4">
-<h4 class="anchored" data-anchor-id="age-against-charges-with-smoking-status">Age against charges, with smoking status</h4>
+<section id="charges-by-risk-group" class="level4">
+<h4 class="anchored" data-anchor-id="charges-by-risk-group">Charges by risk group</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(costs, <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> charges, <span class="at">color =</span> smoker)) <span class="sc">+</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"tomato"</span>) <span class="sc">+</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Age vs insurance charges (with smoking status)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(costs, <span class="fu">aes</span>(<span class="at">x =</span> risk_group, <span class="at">y =</span> charges, <span class="at">fill =</span> risk_group)) <span class="sc">+</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Charges by risk group"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Charges"</span>) <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="insurance_costs_report_files/figure-html/Charges%20by%20risk%20group-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Customers were grouped into three risk categories based on their claims and accident history. The boxplot shows a clear stepwise pattern, with <strong>High</strong> risk customers having a median charge of around 14,000, followed by <strong>Medium</strong> at approximately 10,000 and <strong>Low</strong> at around 8,000. This suggests that prior claims and accident history combined into a single risk group variable is a meaningful way to capture customer risk and is likely to be a relevant predictor in the regression model. It should be noted however that the thresholds used to define the groups are manually set and somewhat arbitrary, different cutoff values could produce different groupings and potentially lead to different conclusions.</p>
+</section>
+</section>
+<section id="continuous-predictors-and-charges" class="level3">
+<h3 class="anchored" data-anchor-id="continuous-predictors-and-charges">Continuous predictors and charges</h3>
+<section id="age-against-charges-colored-by-smoking-status" class="level4">
+<h4 class="anchored" data-anchor-id="age-against-charges-colored-by-smoking-status">Age against charges, colored by smoking status</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(costs, <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> charges, <span class="at">color =</span> smoker)) <span class="sc">+</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"tomato"</span>) <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Age vs insurance charges (with smoking status)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stderr">
 <pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
@@ -330,22 +352,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insurance_costs_report_files/figure-html/Age%20vs%20charges%20(with%20smoker%20status)-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="insurance_costs_report_files/figure-html/Age%20vs%20charges%20(with%20smoker%20status)-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>The scatter plot of age against charges, colored by smoking status, reveals two fairly distinct clusters. Smokers consistently occupy the upper portion of the chart across all age groups, while non-smokers cluster at lower charge levels. The overall trend line shows a positive relationship between age and charges, but the separation between smokers and non-smokers suggests that smoking status may have a stronger influence on charges than age alone.</p>
 </section>
-<section id="age-against-charges-with-chronic-condition" class="level4">
-<h4 class="anchored" data-anchor-id="age-against-charges-with-chronic-condition">Age against charges, with chronic condition</h4>
+<section id="age-against-charges-colored-by-chronic-condition" class="level4">
+<h4 class="anchored" data-anchor-id="age-against-charges-colored-by-chronic-condition">Age against charges, colored by chronic condition</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(costs, <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> charges, <span class="at">color =</span> chronic_condition)) <span class="sc">+</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span> </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"tomato"</span>) <span class="sc">+</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Age vs insurance charges (with chronic condition)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(costs, <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> charges, <span class="at">color =</span> chronic_condition)) <span class="sc">+</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"tomato"</span>) <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Age vs insurance charges (with chronic condition)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stderr">
 <pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
@@ -353,12 +375,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insurance_costs_report_files/figure-html/Age%20vs%20charges%20(with%20chronic%20condition%20status)-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="insurance_costs_report_files/figure-html/Age%20vs%20charges%20(with%20chronic%20condition%20status)-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>When grouping by chronic condition, the separation between groups is less pronounced than with smoking status. Customers with a chronic condition tend to have somewhat higher charges, but there is considerable overlap between the two groups. The positive relationship between age and charges holds regardless of chronic condition status.</p>
+</section>
+<section id="bmi-against-charges" class="level4">
+<h4 class="anchored" data-anchor-id="bmi-against-charges">Bmi against charges</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(costs, <span class="fu">aes</span>(<span class="at">x =</span> bmi, <span class="at">y =</span> charges)) <span class="sc">+</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"tomato"</span>) <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bmi vs insurance charges"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 28 rows containing non-finite outside the scale range
+(`stat_smooth()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 28 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="insurance_costs_report_files/figure-html/Bmi%20vs%20charges-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 </section>
 </section>
@@ -389,17 +441,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(costs, <span class="fu">aes</span>(<span class="at">x =</span> sex, <span class="at">y =</span> charges, <span class="at">fill =</span> sex)) <span class="sc">+</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Charges by gender"</span>,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Charges"</span>) <span class="sc">+</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(costs, <span class="fu">aes</span>(<span class="at">x =</span> sex, <span class="at">y =</span> charges, <span class="at">fill =</span> sex)) <span class="sc">+</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Charges by gender"</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Charges"</span>) <span class="sc">+</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insurance_costs_report_files/figure-html/fig-Distribution%20of%20insurance%20charges-test-1.png" class="img-fluid figure-img" alt="A histogram of insurance charges">{#fig-Distribution of insurance charges-test fig-alt=‘..more descriptive stuff here’ width=50%}</p>
+<p><img src="insurance_costs_report_files/figure-html/fig-Distribution%20of%20insurance%20charges-test-1.png" class="img-fluid figure-img" alt="A histogram of insurance charges">{#fig-Distribution of insurance charges-test fig-alt=‘..more descriptive stuff here’ width=50%}</p>
 </figure>
 </div>
 </div>

@@ -8,7 +8,7 @@ colSums(is.na(costs_raw))
 # exercise_level (cat) - 22
 # annual_checkups (num) - 20
 
-# Missing values will be ignored them in calculations
+# Missing values will be managed case-by-case in the calculations
 
 costs_raw |> 
   count(sex)
@@ -23,7 +23,7 @@ costs_raw |>
 costs_raw |> 
   count(plan_type)
 
-# cleaning and transformation steps (adding age_group as new variable)
+# cleaning and transformation steps (adding age_group and risk_score as new variable)
 costs <- costs_raw |> 
   mutate(
     sex =               str_trim(sex),
@@ -58,6 +58,13 @@ costs <- costs_raw |>
       age_group,
       levels = c("18-30", "31-40", "41-50", "51-60", "61-75"),
       ordered = TRUE
+    ) 
+  ) |> 
+  mutate(
+    risk_group = case_when(
+      prior_claims == 0 & prior_accidents == 0 ~ "Low",
+      prior_accidents >= 2 | prior_claims >= 2 ~ "High",
+      TRUE ~ "Medium"
     )
   )
   
@@ -75,7 +82,23 @@ costs |>
 costs |> 
   count(plan_type)
 
+# validating new variables
 
+# age_group
+costs |> 
+  group_by(age_group) |> 
+  summarise(
+    n = n(),
+    avg_cost = mean(charges, na.rm = TRUE)
+  )
+
+# risk_group
+costs |> 
+  group_by(risk_group) |> 
+  summarise(
+    n = n(),
+    avg_cost = mean(charges, na.rm = TRUE)
+  )
   
 
 

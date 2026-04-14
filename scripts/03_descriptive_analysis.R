@@ -132,6 +132,19 @@ ggsave(
   plot     = fig_charges_age_group
 )
 
+# risk_group
+fig_charges_risk_group <- ggplot(costs, aes(x = risk_group, y = charges, fill = risk_group)) +
+  geom_boxplot() +
+  labs(title = "Charges by risk group",
+       x = NULL,
+       y = "Charges") +
+  theme(legend.position = "none")
+
+ggsave(
+  filename = ("output/fig_charges_risk_group.png"),
+  plot     = fig_charges_risk_group
+)
+
 # -----------------------------------
 
 # Scatter plot: continuous predictors vs charges
