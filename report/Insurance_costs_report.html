@@ -7,7 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Isabel Holm">
-<meta name="dcterms.date" content="2026-04-13">
 
 <title>Insurance Costs – Analysis of Factors Related to Costs</title>
 <style>
@@ -101,7 +100,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 13, 2026</p>
+      <p class="date">Invalid Date</p>
     </div>
   </div>
   
@@ -116,7 +115,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>This report presents an analysis of insurance cost data with the aim of identifying which factors are most strongly associated with individual insurance charges. The dataset contains information on customer demographics, lifestyle factors, health-related variables, and insurance history.</p>
-<p>The purpose of this analysis is twofold: first, to explore and describe patterns in the data through statistical summaries and visualizations; and second, to build a regression model that can help explain variation in insurance costs and potentially serve as a support tool in future pricing decisions.</p>
+<p>The purpose of this analysis is twofold: first, to explore and describe patterns in the data through statistical summaries and visualizations; and second, to build regression models that can help explain variation in insurance costs and potentially serve as a support tool in future pricing decisions.</p>
 <p>The data set contains information about <strong>customer_id, age, sex, region, bmi, children, smoker, chronic_condition, exercise_level, plan_type, prior_accidents, prior_claims, annual_checkups</strong> and <strong>charges</strong>.</p>
 </section>
 <section id="method" class="level2">
@@ -124,8 +123,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The analysis was conducted in R and structured across three main stages: data preparation, descriptive analysis, and regression modeling.</p>
 <section id="data-preparations" class="level3">
 <h3 class="anchored" data-anchor-id="data-preparations">Data Preparations</h3>
-<p>The data set was loaded using the <code>readr</code> package and initially inspected using <code>glimpse()</code> and <code>summary()</code> to understand its structure and variable types. Missing values were identified in three variables: <strong>bmi</strong> (28 missing), <strong>exercise_level</strong> (22 missing), and <strong>annual_checkups</strong> (20 missing). These were retained in the dataset and excluded on a case-by-case basis in calculations.</p>
-<p>Categorical variables were standardized by trimming whitespace and applying consistent title case formatting, before being converted to factors. A new ordered variable, <code>age_group</code>, was created by binning age into five intervals (18–30, 31–40, 41–50, 51–60, 61–75) to support group-level comparisons in the descriptive analysis. In addition, a derived variable, <code>risk_group</code>, was created to capture combined risk based on prior insurance history. This variable combines <em>prior_claims</em> and <em>prior_accidents</em> into a single categorical measure. Policyholders with no prior claims or accidents were classified as <strong>Low</strong> risk, those with two or more claims or accidents as <strong>High</strong> risk, and all others as <strong>Medium</strong> risk.</p>
+<p>The data set was loaded using the <code>readr</code> package and initially inspected using <code>glimpse()</code> and <code>summary()</code> to understand its structure and variable types. Missing values were identified in three variables: <strong>bmi</strong> (28 missing), <strong>exercise_level</strong> (22 missing), and <strong>annual_checkups</strong> (20 missing). Missing values were handled individually with the planned regression analysis in mind. For each variable containing missing observations, a missingness indicator variable was created, followed by imputation. Missing values in <strong>bmi</strong> and <strong>annual_checkups</strong> were imputed using the median, while missing values in <strong>exercise_level</strong> were replaced with <em>“Unknown”</em>.</p>
+<p>Further, categorical variables were standardized by trimming whitespace and applying consistent title case formatting, before being converted to factors. A new ordered variable, <code>age_group</code>, was created by binning age into five intervals (18–30, 31–40, 41–50, 51–60, 61–75) to support group-level comparisons in the descriptive analysis. In addition, a derived variable, <code>risk_group</code>, was created to capture combined risk based on prior insurance history. This variable combines <em>prior_claims</em> and <em>prior_accidents</em> into a single categorical measure. Policyholders with no prior claims or accidents were classified as <strong>Low</strong> risk, those with two or more claims or accidents as <strong>High</strong> risk, and all others as <strong>Medium</strong> risk.</p>
 </section>
 <section id="descriptive-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="descriptive-analysis">Descriptive Analysis</h3>
@@ -196,7 +195,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The dataset contains 1,100 observations. Insurance charges range from 1,204 to 32,559, with a mean of 10,060 and a median of 9,124. The gap between the mean and median suggests a right-skewed distribution, where a smaller number of high-charge customers pull the average upward. The standard deviation of 4,574 and an interquartile range of 5,873 indicate considerable spread in charges across the dataset.</p>
-<p>Missing values present in <strong>bmi,</strong> <strong>exercise_level,</strong> and <strong>annual_checkups</strong> were excluded on a per-calculation basis using <code>na.rm = TRUE</code>, meaning all 1,100 observations are retained in the dataset and only omitted where the relevant variable is missing.</p>
 <section id="distribution-of-charges" class="level3">
 <h3 class="anchored" data-anchor-id="distribution-of-charges">Distribution of charges</h3>
 <div class="cell">
@@ -211,12 +209,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="insurance_costs_report_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="insurance_costs_report_files/figure-html/distribution%20of%20charges-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The histogram confirms the right-skewed distribution noted in the summary statistics. The majority of customers have charges clustered between approximately 3,000 and 12,000, with a long tail extending toward the higher end. This suggests that while most customers incur moderate costs, a smaller group generates significantly higher charges, a pattern worth keeping in mind when interpreting the regression results.</p>
+<p>The histogram confirms the right-skewed distribution noted in the summary statistics. The majority of customers have charges clustered between approximately 4,000 and 13,000, with a long tail extending toward the higher end. This suggests that while most customers incur moderate costs, a smaller group generates significantly higher charges.</p>
 </section>
 <section id="charges-per-group" class="level3">
 <h3 class="anchored" data-anchor-id="charges-per-group">Charges per group</h3>
@@ -328,13 +326,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Customers were grouped into three risk categories based on their claims and accident history. The boxplot shows a clear stepwise pattern, with <strong>High</strong> risk customers having a median charge of around 14,000, followed by <strong>Medium</strong> at approximately 10,000 and <strong>Low</strong> at around 8,000. This suggests that prior claims and accident history combined into a single risk group variable is a meaningful way to capture customer risk and is likely to be a relevant predictor in the regression model. It should be noted however that the thresholds used to define the groups are manually set and somewhat arbitrary, different cutoff values could produce different groupings and potentially lead to different conclusions.</p>
+<p>Customers were grouped into three risk categories based on their claims and accident history. The boxplot shows a clear stepwise pattern, with <strong>High</strong> risk customers having a median charge of around 14,000, followed by <strong>Medium</strong> at approximately 10,000 and <strong>Low</strong> at around 8,000. This suggests that prior claims and accident history combined into a single risk group variable is a meaningful way to capture customer risk and is likely to be a relevant predictor in the regression model.</p>
+<p>It should be noted however that the thresholds used to define the groups are manually set and somewhat arbitrary, different cutoff values could produce different groupings and potentially lead to different conclusions.</p>
 </section>
 </section>
 <section id="continuous-predictors-and-charges" class="level3">
 <h3 class="anchored" data-anchor-id="continuous-predictors-and-charges">Continuous predictors and charges</h3>
-<section id="age-against-charges-colored-by-smoking-status" class="level4">
-<h4 class="anchored" data-anchor-id="age-against-charges-colored-by-smoking-status">Age against charges, colored by smoking status</h4>
+<section id="age-against-charges-with-smoking-status" class="level4">
+<h4 class="anchored" data-anchor-id="age-against-charges-with-smoking-status">Age against charges with smoking status</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -356,8 +355,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>The scatter plot of age against charges, colored by smoking status, reveals two fairly distinct clusters. Smokers consistently occupy the upper portion of the chart across all age groups, while non-smokers cluster at lower charge levels. The overall trend line shows a positive relationship between age and charges, but the separation between smokers and non-smokers suggests that smoking status may have a stronger influence on charges than age alone.</p>
 </section>
-<section id="age-against-charges-colored-by-chronic-condition" class="level4">
-<h4 class="anchored" data-anchor-id="age-against-charges-colored-by-chronic-condition">Age against charges, colored by chronic condition</h4>
+<section id="age-against-charges-with-chronic-condition" class="level4">
+<h4 class="anchored" data-anchor-id="age-against-charges-with-chronic-condition">Age against charges with chronic condition</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -389,17 +388,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"tomato"</span>) <span class="sc">+</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bmi vs insurance charges"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 28 rows containing non-finite outside the scale range
-(`stat_smooth()`).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 28 rows containing missing values or values outside the scale range
-(`geom_point()`).</code></pre>
-</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -408,7 +396,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>BMI against charges shows a weak positive relationship, with the trend line indicating that charges increase slightly as BMI rises. However, the considerable spread of points around the trend line suggests that BMI alone is a relatively weak predictor of charges. It may still contribute to the regression model, but is unlikely to be among the strongest predictors on its own.</p>
+<p>BMI against charges shows a weaker positive relationship, with the trend line indicating that charges increase slightly as BMI rises. However, the considerable spread of points around the trend line suggests that BMI alone is a relatively weak predictor of charges. It may still contribute to the regression model, but is unlikely to be among the strongest predictors on its own.</p>
 </section>
 </section>
 </section>
@@ -425,38 +413,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(charges <span class="sc">~</span> age <span class="sc">+</span> smoker <span class="sc">+</span> chronic_condition, <span class="at">data =</span> costs)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(charges <span class="sc">~</span> age <span class="sc">+</span> smoker <span class="sc">+</span> chronic_condition <span class="sc">+</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>               bmi <span class="sc">+</span> risk_group <span class="sc">+</span> plan_type <span class="sc">+</span> exercise_level,</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> costs)</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>model3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(charges <span class="sc">~</span> age <span class="sc">*</span> smoker <span class="sc">+</span> chronic_condition <span class="sc">+</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>               bmi <span class="sc">+</span> risk_group <span class="sc">+</span> plan_type <span class="sc">+</span> exercise_level,</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> costs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(charges <span class="sc">~</span> age <span class="sc">+</span> smoker <span class="sc">+</span> chronic_condition, <span class="at">data =</span> costs)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(charges <span class="sc">~</span> age <span class="sc">+</span> smoker <span class="sc">+</span> chronic_condition <span class="sc">+</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>               bmi <span class="sc">+</span> risk_group <span class="sc">+</span> plan_type <span class="sc">+</span> exercise_level,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> costs)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>model3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(charges <span class="sc">~</span> age <span class="sc">*</span> smoker <span class="sc">+</span> chronic_condition <span class="sc">+</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>               bmi <span class="sc">+</span> risk_group <span class="sc">+</span> plan_type <span class="sc">+</span> exercise_level,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> costs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<section id="results" class="level3">
-<h3 class="anchored" data-anchor-id="results">Results</h3>
-<section id="model-comparison" class="level4">
-<h4 class="anchored" data-anchor-id="model-comparison">Model comparison</h4>
+<section id="model-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="model-comparison">Model comparison</h3>
 <p>The three models are compared against each other using adjusted R² and AIC (Akaike Information Criterion). Adjusted R² measures how well the model explains the variation in insurance charges, expressed as a value between 0 and 1 where a higher value indicates a better fit. Unlike regular R², it adjusts for the number of predictors, meaning it only increases if a new variable actually improves the model.</p>
 <p>AIC balances how well the model is fitted against model complexity, where a lower value indicates a better model. It is particularly useful when comparing models of different sizes, as it penalises unnecessary complexity.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">model   =</span> <span class="fu">c</span>(<span class="st">"Model 1"</span>, <span class="st">"Model 2"</span>, <span class="st">"Model 3"</span>),</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">adj_r2  =</span> <span class="fu">c</span>(<span class="fu">summary</span>(model1)<span class="sc">$</span>adj.r.squared,</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>              <span class="fu">summary</span>(model2)<span class="sc">$</span>adj.r.squared,</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>              <span class="fu">summary</span>(model3)<span class="sc">$</span>adj.r.squared),</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">aic     =</span> <span class="fu">c</span>(<span class="fu">AIC</span>(model1), <span class="fu">AIC</span>(model2), <span class="fu">AIC</span>(model3))</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">0</span>),</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model"</span>, <span class="st">"Adjusted R²"</span>, <span class="st">"AIC"</span>),</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Model comparision - Adjusted R² and AIC"</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">model   =</span> <span class="fu">c</span>(<span class="st">"Model 1"</span>, <span class="st">"Model 2"</span>, <span class="st">"Model 3"</span>),</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">adj_r2  =</span> <span class="fu">c</span>(<span class="fu">summary</span>(model1)<span class="sc">$</span>adj.r.squared,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>              <span class="fu">summary</span>(model2)<span class="sc">$</span>adj.r.squared,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>              <span class="fu">summary</span>(model3)<span class="sc">$</span>adj.r.squared),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">aic     =</span> <span class="fu">c</span>(<span class="fu">AIC</span>(model1), <span class="fu">AIC</span>(model2), <span class="fu">AIC</span>(model3))</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">0</span>),</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model"</span>, <span class="st">"Adjusted R²"</span>, <span class="st">"AIC"</span>),</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Model comparision - Adjusted R² and AIC"</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -476,29 +462,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td style="text-align: left;">Model 2</td>
-<td style="text-align: right;">0.744</td>
-<td style="text-align: right;">19284</td>
+<td style="text-align: right;">0.741</td>
+<td style="text-align: right;">20192</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Model 3</td>
-<td style="text-align: right;">0.744</td>
-<td style="text-align: right;">19286</td>
+<td style="text-align: right;">0.741</td>
+<td style="text-align: right;">20194</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 <p><strong>Adjusted R²:</strong> Model 1 explains about 66% of the variation in insurance charges using only the three strong predictors. Model 2 jumps to 74% by adding BMI, risk group, plan type and exercise level, which is a meaningful improvement. Model 3 stays at 74%, meaning the interaction term between age and smoker didn’t add any real explanatory value beyond model 2.</p>
-<p><strong>AIC:</strong> A lower AIC is better. Model 1 has the highest AIC, confirming it’s the weakest fit. Model 2 scores 19284 and Model 3 scores 19286, so Model 2 is actually slightly better than Model 3 despite having fewer parameters. Model 3 added the interaction term but didn’t improve the fit enough to justify it.</p>
-<p><strong>Overall conclusion:</strong> Model 2 is the best model. It explains noticeably more than Model 1, and beats Model 3 on AIC despite being simpler. The interaction between age and smoking that Model 3 tests turns out not to be necessary, at least not in this data set.</p>
-</section>
+<p><strong>AIC:</strong> Model 1 has the highest AIC, confirming it’s the weakest fit. Model 2 scores only slightly lower at 20 192 and Model 3 scores just above at 20 194, so once again the interaction term in Model 3 didn’t improve the fit enough to justify it.</p>
+<p><strong>Overall conclusion:</strong> Model 2 is the best model. It explains noticeably more than Model 1, and the interaction between age and smoking that Model 3 tests turns out not to be necessary, at least not in this data set.</p>
 </section>
 <section id="model-2---detailed-results" class="level3">
 <h3 class="anchored" data-anchor-id="model-2---detailed-results">Model 2 - Detailed Results</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -508,49 +493,50 @@ lm(formula = charges ~ age + smoker + chronic_condition + bmi +
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--8953.2 -1484.9  -109.3  1389.7 17539.6 
+-8941.5 -1498.2  -102.6  1410.4 17583.5 
 
 Coefficients:
-                      Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)           1190.526    595.508   1.999 0.045849 *  
-age                     69.077      5.823  11.862  &lt; 2e-16 ***
-smokerYes             7483.757    187.989  39.810  &lt; 2e-16 ***
-chronic_conditionYes  3749.568    170.871  21.944  &lt; 2e-16 ***
-bmi                    159.129     15.690  10.142  &lt; 2e-16 ***
-risk_groupLow        -2502.381    323.921  -7.725 2.62e-14 ***
-risk_groupMedium     -1298.443    336.039  -3.864 0.000118 ***
-plan_typePremium      1531.114    212.105   7.219 1.01e-12 ***
-plan_typeStandard      640.129    164.085   3.901 0.000102 ***
-exercise_levelLow     1430.960    214.611   6.668 4.21e-11 ***
-exercise_levelMedium   486.520    192.007   2.534 0.011427 *  
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)            1207.006    590.651   2.044  0.04124 *  
+age                      70.761      5.723  12.365  &lt; 2e-16 ***
+smokerYes              7422.828    184.187  40.300  &lt; 2e-16 ***
+chronic_conditionYes   3790.921    166.658  22.747  &lt; 2e-16 ***
+bmi                     158.666     15.653  10.136  &lt; 2e-16 ***
+risk_groupLow         -2618.188    316.933  -8.261 4.16e-16 ***
+risk_groupMedium      -1456.807    329.000  -4.428 1.05e-05 ***
+plan_typePremium       1483.612    207.563   7.148 1.61e-12 ***
+plan_typeStandard       670.358    161.186   4.159 3.45e-05 ***
+exercise_levelLow      1487.758    211.500   7.034 3.53e-12 ***
+exercise_levelMedium    512.796    189.573   2.705  0.00694 ** 
+exercise_levelUnknown   655.105    524.030   1.250  0.21152    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 2319 on 1040 degrees of freedom
-  (49 observations deleted due to missingness)
-Multiple R-squared:  0.7463,    Adjusted R-squared:  0.7438 
-F-statistic: 305.9 on 10 and 1040 DF,  p-value: &lt; 2.2e-16</code></pre>
+Residual standard error: 2328 on 1088 degrees of freedom
+Multiple R-squared:  0.7436,    Adjusted R-squared:  0.741 
+F-statistic: 286.8 on 11 and 1088 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p>Model 2 explains 74% of the variation in insurance charges, and the overall model is highly significant (p &lt; 0.001). All included predictors were statistically significant, suggesting that each variable contributes meaningfully to predicting charges.</p>
-<p><strong>The strongest individual predictor was <em>smoking status</em>,</strong> where smokers on average incur approximately 7 484 higher charges than non-smokers, all else equal. Having a <em>chronic condition</em> adds around 3 750 to charges, and each additional year of age increases charges by approximately 69. BMI also shows a positive effect, with each unit increase adding around 159 to charges.</p>
-<p>Regarding <em>risk group</em>, policyholders classified as Low or Medium risk have notably lower charges compared to the High risk reference group, with Low risk customers having charges around 2 502 less. Customers on a Premium plan have charges around approximately 1 531 more than the Basic plan, and those with a Standard plan around 640 more. Finally, <em>exercise level</em> shows that lower activity is associated with higher charges, with Low exercise adding around 1 431 compared to the High exercise group.</p>
+<p><strong>The strongest individual predictor was <em>smoking status</em>,</strong> where smokers on average incur approximately 7 423 higher charges than non-smokers. Having a <em>chronic condition</em> adds around 3 791 to charges, and each additional year of age increases charges by approximately 71. BMI also shows a positive effect, with each unit increase adding around 159 to charges.</p>
+<p>Regarding <em>risk group</em>, policyholders classified as Low or Medium risk have notably lower charges compared to the High risk reference group, with Low risk customers having charges around 2 618 less. Customers on a Premium plan have charges around approximately 1 484 more than the Basic plan, and those with a Standard plan around 670 more. Finally, <em>exercise level</em> shows that lower activity is associated with higher charges, with Low exercise adding around 1 488 compared to the High exercise group.</p>
 <p><em>Note that in all interpretations are made on the basis that each coefficient reflects the effect of that variable while holding all others constant.</em></p>
 <section id="residual-vs-fitted" class="level4">
 <h4 class="anchored" data-anchor-id="residual-vs-fitted">Residual vs fitted</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>model2_diagnostics <span class="ot">&lt;-</span> model2<span class="sc">$</span>model <span class="sc">|&gt;</span> </span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">fitted_value =</span> <span class="fu">fitted</span>(model2),</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">residual     =</span> <span class="fu">residuals</span>(model2)</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(model2_diagnostics, <span class="fu">aes</span>(<span class="at">x =</span> fitted_value, <span class="at">y =</span> residual)) <span class="sc">+</span> </span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"tomato"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Model 2"</span>, <span class="at">x =</span> <span class="st">"Fitted values"</span>, <span class="at">y =</span> <span class="st">"Residuals"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model2$model manages NA as it only contains the rows lm() actually used</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>model2_diagnostics <span class="ot">&lt;-</span> model2<span class="sc">$</span>model <span class="sc">|&gt;</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">fitted_value =</span> <span class="fu">fitted</span>(model2),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">residual     =</span> <span class="fu">residuals</span>(model2)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(model2_diagnostics, <span class="fu">aes</span>(<span class="at">x =</span> fitted_value, <span class="at">y =</span> residual)) <span class="sc">+</span> </span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"tomato"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Model 2"</span>, <span class="at">x =</span> <span class="st">"Fitted values"</span>, <span class="at">y =</span> <span class="st">"Residuals"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -560,14 +546,15 @@ F-statistic: 305.9 on 10 and 1040 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
+<p>The residuals are roughly centered around zero, which is a good sign. However, the spread increases as fitted values get larger.This means the model is less precise at predicting higher charges, which is worth noting as a limitation. A few outliers with large residuals are also visible, particularly in the mid-to-high range.</p>
 </section>
 <section id="qq-plot" class="level4">
 <h4 class="anchored" data-anchor-id="qq-plot">QQ-plot</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(model2))</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(model2), <span class="at">col =</span> <span class="st">"tomato"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(model2))</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(model2), <span class="at">col =</span> <span class="st">"tomato"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -577,17 +564,18 @@ F-statistic: 305.9 on 10 and 1040 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
+<p>The residuals follow the reference line closely through the middle of the distribution, suggesting approximate normality for most observations. However, both tails deviate from the line. This indicates that the model tends to underestimate some very low charges and overestimate some very high ones.</p>
 </section>
 <section id="actual-vs-predicted-charges" class="level4">
 <h4 class="anchored" data-anchor-id="actual-vs-predicted-charges">Actual vs predicted charges</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span> (model2_diagnostics, <span class="fu">aes</span>(<span class="at">x =</span> charges, <span class="at">y =</span> fitted_value)) <span class="sc">+</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"tomato"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Model 2 - Actual vs Predicted"</span>,</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Actual charges"</span>, <span class="at">y =</span> <span class="st">"Predicted charges"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span> (model2_diagnostics, <span class="fu">aes</span>(<span class="at">x =</span> charges, <span class="at">y =</span> fitted_value)) <span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"tomato"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Model 2 - Actual vs Predicted"</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Actual charges"</span>, <span class="at">y =</span> <span class="st">"Predicted charges"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -597,17 +585,17 @@ F-statistic: 305.9 on 10 and 1040 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
+<p>Points close to the dashed reference line indicate accurate predictions. The model performs well in the low-to-mid charge range, where most points follow the line closely. However, at higher actual charge levels the predictions become less accurate. The model tends to underpredict high charges, as seen by points falling below the reference line in the upper range.</p>
+<p>A few notable outliers are also visible, particularly one observation with very high actual charges, about 32 000, that the model significantly underpredicts. Overall the plot confirms that the model captures the general pattern reasonably well, but is less reliable at the extremes.</p>
 </section>
 </section>
 </section>
 <section id="conclusions" class="level2">
 <h2 class="anchored" data-anchor-id="conclusions">Conclusions</h2>
+<p>………</p>
 </section>
-<section id="what-to-discuss" class="level2">
-<h2 class="anchored" data-anchor-id="what-to-discuss">What to discuss</h2>
-<p><strong>Which variables matter most?</strong> Look at the p-values and coefficient sizes in <code>summary()</code>. <code>smoker</code>, <code>age</code>, and <code>chronic_condition</code> will likely dominate.</p>
-<p><strong>Do results seem reasonable?</strong> Smokers costing more, higher BMI increasing charges, High risk_group being more expensive — these all make intuitive sense.</p>
-<p><strong>Limitations to mention:</strong></p>
+<section id="limitations" class="level2">
+<h2 class="anchored" data-anchor-id="limitations">Limitations</h2>
 <ul>
 <li><p>Linear regression assumes a straight-line relationship — charges may not behave that way</p></li>
 <li><p>Right-skewed charges can violate normality assumptions (visible in QQ-plot)</p></li>
@@ -615,59 +603,6 @@ F-statistic: 305.9 on 10 and 1040 DF,  p-value: &lt; 2.2e-16</code></pre>
 <li><p>Some variables were excluded for simplicity — a real model might include them</p></li>
 <li><p><code>risk_group</code> is a simplified derived variable that loses some nuance from the raw claims/accidents data</p></li>
 </ul>
-<p>Weaker predictors that may be interesting to explore:</p>
-<ul>
-<li><p>bmi - health-related, commonly used in insurance pricing</p></li>
-<li><p>risk_group - captures prior history</p></li>
-<li><p>plan_type - likely affects charges directly</p></li>
-<li><p>exercise_level - health lifestyle factor</p></li>
-</ul>
-<p>The remaining variables have a weaker theoretical link and more ambiguous impact to individual charges and would add too many dummy variables.</p>
-</section>
-<section id="limitations" class="level2">
-<h2 class="anchored" data-anchor-id="limitations">Limitations</h2>
-<p>……..</p>
-</section>
-<section id="running-code" class="level2">
-<h2 class="anchored" data-anchor-id="running-code">Running Code</h2>
-<p>When you click the <strong>Render</strong> button a document will be generated that includes both content and the output of embedded code. You can embed code like this:You can add options to executable code like this</p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 4</code></pre>
-</div>
-</div>
-<p>The <code>echo: false</code> option disables the printing of code (only output is displayed).</p>
-</section>
-<section id="include-a-plot" class="level2">
-<h2 class="anchored" data-anchor-id="include-a-plot">Include a plot</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(costs, <span class="fu">aes</span>(<span class="at">x =</span> sex, <span class="at">y =</span> charges, <span class="at">fill =</span> sex)) <span class="sc">+</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Charges by gender"</span>,</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>,</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Charges"</span>) <span class="sc">+</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="insurance_costs_report_files/figure-html/fig-Distribution%20of%20insurance%20charges-test-1.png" class="img-fluid figure-img" alt="A histogram of insurance charges">{#fig-Distribution of insurance charges-test fig-alt=‘..more descriptive stuff here’ width=50%}</p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="insurance_costs_report_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Test - det ska dyka upp ett kodblock tillhörande denna plot</p>
 </section>
 
 </main>

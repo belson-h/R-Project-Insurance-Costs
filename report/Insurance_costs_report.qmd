@@ -1,7 +1,7 @@
 ---
 title: "Insurance Costs – Analysis of Factors Related to Costs"
 author: "Isabel Holm"
-date: "13 april 2026"
+date: "26 april 2026"
 format: 
   html: 
     theme: lux
@@ -13,6 +13,24 @@ execute:
   echo: true
 ---
 
+## Introduction
+
+This report presents an analysis of insurance cost data with the aim of identifying which factors are most strongly associated with individual insurance charges. The dataset contains information on customer demographics, lifestyle factors, health-related variables, and insurance history.
+
+The purpose of this analysis is twofold: first, to explore and describe patterns in the data through statistical summaries and visualizations; and second, to build regression models that can help explain variation in insurance costs and potentially serve as a support tool in future pricing decisions.
+
+The data set contains information about **customer_id, age, sex, region, bmi, children, smoker, chronic_condition, exercise_level, plan_type, prior_accidents, prior_claims, annual_checkups** and **charges**.
+
+## Method
+
+The analysis was conducted in R and structured across three main stages: data preparation, descriptive analysis, and regression modeling.
+
+### Data Preparations
+
+The data set was loaded using the `readr` package and initially inspected using `glimpse()` and `summary()` to understand its structure and variable types. Missing values were identified in three variables: **bmi** (28 missing), **exercise_level** (22 missing), and **annual_checkups** (20 missing). Missing values were handled individually with the planned regression analysis in mind. For each variable containing missing observations, a missingness indicator variable was created, followed by imputation. Missing values in **bmi** and **annual_checkups** were imputed using the median, while missing values in **exercise_level** were replaced with *"Unknown"*.
+
+Further, categorical variables were standardized by trimming whitespace and applying consistent title case formatting, before being converted to factors. A new ordered variable, `age_group`, was created by binning age into five intervals (18–30, 31–40, 41–50, 51–60, 61–75) to support group-level comparisons in the descriptive analysis. In addition, a derived variable, `risk_group`, was created to capture combined risk based on prior insurance history. This variable combines *prior_claims* and *prior_accidents* into a single categorical measure. Policyholders with no prior claims or accidents were classified as **Low** risk, those with two or more claims or accidents as **High** risk, and all others as **Medium** risk.
+
 ```{r}
 #| label: setup
 #| include: false
@@ -22,9 +40,24 @@ library(tidyverse)
 costs_raw <- read_csv("../data/insurance_costs.csv")
 
 costs <- costs_raw |> 
+  # managing na-values:
+  # creates missingness indicator variables for each column with NA values (good for regression)
+  mutate(
+    bmi_missing =             if_else(is.na(bmi), 1, 0),
+    annual_checkup_missing =  if_else(is.na(annual_checkups), 1, 0),
+    exercise_level_missing =  if_else(is.na(exercise_level), 1, 0),
+    # imputing columns with NA values
+    bmi =               replace_na(bmi, median(bmi, na.rm = TRUE)),
+    exercise_level =    replace_na(exercise_level, "Unknown"),
+    annual_checkups =   replace_na(
+      annual_checkups, 
+      median(annual_checkups, na.rm = TRUE))
+  ) |> 
+  # trim & to_title -> cleans values
+  # as.factor -> makes categorical values a factor
   mutate(
     sex =               str_trim(sex),
-    sex =               str_trim(sex),
+    sex =               str_to_title(sex),
     region =            str_trim(region),
     region =            str_to_title(region),
     smoker =            str_trim(smoker),
@@ -42,6 +75,7 @@ costs <- costs_raw |>
     exercise_level =    as.factor(exercise_level),
     plan_type =         as.factor(plan_type)
   ) |> 
+  # creates a new variable: age_group 
   mutate(
     age_group = case_when(
       age >= 18 & age <= 30 ~ "18-30",
@@ -55,8 +89,9 @@ costs <- costs_raw |>
       age_group,
       levels = c("18-30", "31-40", "41-50", "51-60", "61-75"),
       ordered = TRUE
-    )
-  )  |> 
+    ) 
+  ) |> 
+  # creates a new variable: risk_group
   mutate(
     risk_group = case_when(
       prior_claims == 0 & prior_accidents == 0 ~ "Low",
@@ -66,26 +101,6 @@ costs <- costs_raw |>
   )
 ```
 
-## Introduction
-
-This report presents an analysis of insurance cost data with the aim of identifying which factors are most strongly associated with individual insurance charges. The dataset contains information on customer demographics, lifestyle factors, health-related variables, and insurance history.
-
-The purpose of this analysis is twofold: first, to explore and describe patterns in the data through statistical summaries and visualizations; and second, to build
-a regression model that can help explain variation in insurance costs and potentially serve as a support tool in future pricing decisions.
-
-The data set contains information about customer_id, age, sex, region, bmi, children, smoker, chronic_condition, exercise_level, plan_type, prior_accidents, prior_claims, annual_checkups and charges.
-
-## Method
-
-The analysis was conducted in R and structured across three main stages: data preparation, descriptive analysis, and regression modeling.
-
-### Data Preparations
-
-The data set was loaded using the `readr` package and initially inspected using `glimpse()` and `summary()` to understand its structure and variable types.
-Missing values were identified in three variables: **bmi** (28 missing), **exercise_level** (22 missing), and **annual_checkups** (20 missing). These were retained in the dataset and excluded on a case-by-case basis in calculations.
-
-Categorical variables were standardized by trimming whitespace and applying consistent title case formatting, before being converted to factors. A new ordered variable, `age_group`, was created by binning age into five intervals (18–30, 31–40, 41–50, 51–60, 61–75) to support group-level comparisons in the descriptive analysis. In addition, a derived variable, `risk_group`, was created to capture combined risk based on prior insurance history. This variable combines *prior_claims* and *prior_accidents* into a single categorical measure. Policyholders with no prior claims or accidents were classified as **Low** risk, those with two or more claims or accidents as **High** risk, and all others as **Medium** risk.
-
 ### Descriptive Analysis
 
 Summary statistics for the target variable **charges** were computed, including mean, median, standard deviation, min, max, and interquartile range. A range of visualizations were also produced using `ggplot2` to explore the distribution of charges and its relationship with key variables. In the result section, only the visuals showing the strongest predictors will be displayed and discussed. However, the other variables that are not among the strongest predictors on their own may still contribute to the regression models.
@@ -93,6 +108,7 @@ Summary statistics for the target variable **charges** were computed, including 
 ## Statistical summary
 
 ```{r}
+#| label: statistical summary
 #| code-fold: true
 
 costs |>
@@ -114,15 +130,12 @@ costs |>
 
 ```
 
-The dataset contains 1,100 observations. Insurance charges range from 1,204 to 32,559, with a mean of 10,060 and a median of 9,124. The gap between the mean
-and median suggests a right-skewed distribution, where a smaller number of high-charge customers pull the average upward. The standard deviation of 4,574
-and an interquartile range of 5,873 indicate considerable spread in charges across the dataset.
-
-Missing values present in **bmi,** **exercise_level,** and **annual_checkups** were excluded on a per-calculation basis using `na.rm = TRUE`, meaning all 1,100 observations are retained in the dataset and only omitted where the relevant variable is missing.
+The dataset contains 1,100 observations. Insurance charges range from 1,204 to 32,559, with a mean of 10,060 and a median of 9,124. The gap between the mean and median suggests a right-skewed distribution, where a smaller number of high-charge customers pull the average upward. The standard deviation of 4,574 and an interquartile range of 5,873 indicate considerable spread in charges across the dataset.
 
 ### Distribution of charges
 
 ```{r}
+#| label: distribution of charges
 #| code-fold: true
 
 ggplot(costs, aes(x = charges)) +
@@ -132,7 +145,7 @@ ggplot(costs, aes(x = charges)) +
        y = "Count")
 ```
 
-The histogram confirms the right-skewed distribution noted in the summary statistics. The majority of customers have charges clustered between approximately 3,000 and 12,000, with a long tail extending toward the higher end. This suggests that while most customers incur moderate costs, a smaller group generates significantly higher charges, a pattern worth keeping in mind when interpreting the regression results.
+The histogram confirms the right-skewed distribution noted in the summary statistics. The majority of customers have charges clustered between approximately 4,000 and 13,000, with a long tail extending toward the higher end. This suggests that while most customers incur moderate costs, a smaller group generates significantly higher charges.
 
 ### Charges per group
 
@@ -215,11 +228,13 @@ ggplot(costs, aes(x = risk_group, y = charges, fill = risk_group)) +
   theme(legend.position = "none")
 ```
 
-Customers were grouped into three risk categories based on their claims and accident history. The boxplot shows a clear stepwise pattern, with **High** risk customers having a median charge of around 14,000, followed by **Medium** at approximately 10,000 and **Low** at around 8,000. This suggests that prior claims and accident history combined into a single risk group variable is a meaningful way to capture customer risk and is likely to be a relevant predictor in the regression model. It should be noted however that the thresholds used to define the groups are manually set and somewhat arbitrary, different cutoff values could produce different groupings and potentially lead to different conclusions.
+Customers were grouped into three risk categories based on their claims and accident history. The boxplot shows a clear stepwise pattern, with **High** risk customers having a median charge of around 14,000, followed by **Medium** at approximately 10,000 and **Low** at around 8,000. This suggests that prior claims and accident history combined into a single risk group variable is a meaningful way to capture customer risk and is likely to be a relevant predictor in the regression model.
+
+It should be noted however that the thresholds used to define the groups are manually set and somewhat arbitrary, different cutoff values could produce different groupings and potentially lead to different conclusions.
 
 ### Continuous predictors and charges
 
-#### Age against charges, colored by smoking status
+#### Age against charges with smoking status
 
 ```{r}
 #| code-fold: true
@@ -233,7 +248,7 @@ ggplot(costs, aes(x = age, y = charges, color = smoker)) +
 
 The scatter plot of age against charges, colored by smoking status, reveals two fairly distinct clusters. Smokers consistently occupy the upper portion of the chart across all age groups, while non-smokers cluster at lower charge levels. The overall trend line shows a positive relationship between age and charges, but the separation between smokers and non-smokers suggests that smoking status may have a stronger influence on charges than age alone.
 
-#### Age against charges, colored by chronic condition
+#### Age against charges with chronic condition
 
 ```{r}
 #| code-fold: true
@@ -253,6 +268,7 @@ When grouping by chronic condition, the separation between groups is less pronou
 ```{r}
 #| code-fold: true
 #| label: Bmi vs charges
+#| warning: false
 
 ggplot(costs, aes(x = bmi, y = charges)) +
   geom_point(alpha = 0.4) + 
@@ -260,43 +276,144 @@ ggplot(costs, aes(x = bmi, y = charges)) +
   labs(title = "Bmi vs insurance charges")
 ```
 
+BMI against charges shows a weaker positive relationship, with the trend line indicating that charges increase slightly as BMI rises. However, the considerable spread of points around the trend line suggests that BMI alone is a relatively weak predictor of charges. It may still contribute to the regression model, but is unlikely to be among the strongest predictors on its own.
+
 ## Regression analysis
 
-........
+To predict insurance charges, three linear regression models were built using `lm()`. The models were constructed progressively, starting simple and adding complexity stepwise, in order to evaluate whether additional variables and interactions improved predictive performance.
 
-## Conclusions 
+The descriptive analysis indicated that three variables had a particularly strong relationship with charges: `smoker`, `chronic_condition`, and `age`. These were included in all three models as the core predictors.
+
+-   **Model 1:** includes only these three strong predictors and serves as a baseline for comparison.
+-   **Model 2:** extends the baseline by adding `bmi`, `risk_group`, `plan_type`, and `exercise_level`. These variables were selected based on their theoretical relevance to insurance costs, and although their relationship with charges was weaker than the core predictors, the descriptive analysis indicated a positive association worth exploring further.
+-   **Model 3:** builds on Model 2 by adding an interaction term between `age` and `smoker`, based on the hypothesis that the cost of smoking may increase with age. An interaction term lets the model capture that.
+
+Variables such as `sex`, `region`, and `annual_checkups` were excluded to keep the model interpretable, and because their theoretical link to individual charges was considered weaker or more ambiguous.
+
+```{r}
+#| code-fold: true
+#| label: Regression models
+
+model1 <- lm(charges ~ age + smoker + chronic_condition, data = costs)
+
+model2 <- lm(charges ~ age + smoker + chronic_condition +
+               bmi + risk_group + plan_type + exercise_level,
+             data = costs)
+
+model3 <- lm(charges ~ age * smoker + chronic_condition +
+               bmi + risk_group + plan_type + exercise_level,
+             data = costs)
+```
+
+### Model comparison
+
+The three models are compared against each other using adjusted R² and AIC (Akaike Information Criterion). Adjusted R² measures how well the model explains the variation in insurance charges, expressed as a value between 0 and 1 where a higher value indicates a better fit. Unlike regular R², it adjusts for the number of predictors, meaning it only increases if a new variable actually improves the model.
+
+AIC balances how well the model is fitted against model complexity, where a lower value indicates a better model. It is particularly useful when comparing models of different sizes, as it penalises unnecessary complexity.
+
+```{r}
+#| code-fold: true
+#| label: Model Comparison - Adjusted R² and AIC
+
+tibble(
+  model   = c("Model 1", "Model 2", "Model 3"),
+  adj_r2  = c(summary(model1)$adj.r.squared,
+              summary(model2)$adj.r.squared,
+              summary(model3)$adj.r.squared),
+  aic     = c(AIC(model1), AIC(model2), AIC(model3))
+) |> 
+  knitr::kable(
+    digits = c(0, 3, 0),
+    col.names = c("Model", "Adjusted R²", "AIC"),
+    caption = "Model comparision - Adjusted R² and AIC"
+  )
+```
+
+**Adjusted R²:** Model 1 explains about 66% of the variation in insurance charges using only the three strong predictors. Model 2 jumps to 74% by adding BMI, risk group, plan type and exercise level, which is a meaningful improvement. Model 3 stays at 74%, meaning the interaction term between age and smoker didn't add any real explanatory value beyond model 2.
+
+**AIC:** Model 1 has the highest AIC, confirming it's the weakest fit. Model 2 scores only slightly lower at 20 192 and Model 3 scores just above at 20 194, so once again the interaction term in Model 3 didn't improve the fit enough to justify it.
+
+**Overall conclusion:** Model 2 is the best model. It explains noticeably more than Model 1, and the interaction between age and smoking that Model 3 tests turns out not to be necessary, at least not in this data set.
+
+### Model 2 - Detailed Results
+
+```{r}
+#| code-fold: true
+#| label: Summary - Model 2
+
+summary(model2)
+```
+
+Model 2 explains 74% of the variation in insurance charges, and the overall model is highly significant (p \< 0.001). All included predictors were statistically significant, suggesting that each variable contributes meaningfully to predicting charges.
+
+**The strongest individual predictor was *smoking status*,** where smokers on average incur approximately 7 423 higher charges than non-smokers. Having a *chronic condition* adds around 3 791 to charges, and each additional year of age increases charges by approximately 71. BMI also shows a positive effect, with each unit increase adding around 159 to charges.
+
+Regarding *risk group*, policyholders classified as Low or Medium risk have notably lower charges compared to the High risk reference group, with Low risk customers having charges around 2 618 less. Customers on a Premium plan have charges around approximately 1 484 more than the Basic plan, and those with a Standard plan around 670 more. Finally, *exercise level* shows that lower activity is associated with higher charges, with Low exercise adding around 1 488 compared to the High exercise group.
+
+*Note that in all interpretations are made on the basis that each coefficient reflects the effect of that variable while holding all others constant.*
+
+#### Residual vs fitted
+
+```{r}
+#| code-fold: true
+#| label: Residual vs fitted - Model 2
+
+# model2$model manages NA as it only contains the rows lm() actually used
+model2_diagnostics <- model2$model |> 
+  mutate(
+    fitted_value = fitted(model2),
+    residual     = residuals(model2)
+  )
+
+ggplot(model2_diagnostics, aes(x = fitted_value, y = residual)) + 
+  geom_point(alpha = 0.4) +
+  geom_hline(yintercept = 0, color = "tomato", linetype = "dashed") +
+  labs(title = "Model 2", x = "Fitted values", y = "Residuals")
+```
+
+The residuals are roughly centered around zero, which is a good sign. However, the spread increases as fitted values get larger.This means the model is less precise at predicting higher charges, which is worth noting as a limitation. A few outliers with large residuals are also visible, particularly in the mid-to-high range.
+
+#### QQ-plot
+
+```{r}
+#| code-fold: true
+#| label: QQ-plot - Model 2
+
+qqnorm(resid(model2))
+qqline(resid(model2), col = "tomato")
+```
+
+The residuals follow the reference line closely through the middle of the distribution, suggesting approximate normality for most observations. However, both tails deviate from the line. This indicates that the model tends to underestimate some very low charges and overestimate some very high ones.
+
+#### Actual vs predicted charges
+
+```{r}
+#| code-fold: true
+#| label: Actual vs predicted charges - Model 2
+
+ggplot (model2_diagnostics, aes(x = charges, y = fitted_value)) +
+  geom_point(alpha = 0.4) +
+  geom_abline(slope = 1, intercept = 0, color = "tomato", linetype = "dashed") +
+  labs(title = "Model 2 - Actual vs Predicted",
+       x = "Actual charges", y = "Predicted charges")
+```
+
+Points close to the dashed reference line indicate accurate predictions. The model performs well in the low-to-mid charge range, where most points follow the line closely. However, at higher actual charge levels the predictions become less accurate. The model tends to underpredict high charges, as seen by points falling below the reference line in the upper range.
+
+A few notable outliers are also visible, particularly one observation with very high actual charges, about 32 000, that the model significantly underpredicts. Overall the plot confirms that the model captures the general pattern reasonably well, but is less reliable at the extremes.
+
+## Conclusions
 
 .........
 
 ## Limitations
 
-........
+-   Linear regression assumes a straight-line relationship — charges may not behave that way
 
-## Running Code
+-   Right-skewed charges can violate normality assumptions (visible in QQ-plot)
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:You can add options to executable code like this
+-   The model can only find correlations in historical data, not causation
 
-```{r}
-#| echo: false
-2 * 2
-```
+-   Some variables were excluded for simplicity — a real model might include them
 
-The `echo: false` option disables the printing of code (only output is displayed).
-
-## Include a plot
-
-```{r}
-#| label: fig-Distribution of insurance charges-test
-#| fig-cap: "A histogram of insurance charges"
-#| fig-alt: "..more descriptive stuff here"
-#| out-width: 50%
-#| code-fold: true
-
-ggplot(costs, aes(x = sex, y = charges, fill = sex)) +
-  geom_boxplot() +
-  labs(title = "Charges by gender",
-       x = NULL,
-       y = "Charges") +
-  theme(legend.position = "none")
-
-```
+-   `risk_group` is a simplified derived variable that loses some nuance from the raw claims/accidents data

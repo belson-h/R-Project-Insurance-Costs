@@ -1,15 +1,13 @@
 
+# Data overview
 glimpse(costs_raw)
 summary(costs_raw)
+
+# Checking number of NA per column
 colSums(is.na(costs_raw))
 
-# Missing values in:
-# bmi (num) - 28
-# exercise_level (cat) - 22
-# annual_checkups (num) - 20
 
-# Missing values will be managed case-by-case in the calculations
-
+# checking number of distinct values per column
 costs_raw |> 
   count(sex)
 costs_raw |> 
@@ -23,11 +21,29 @@ costs_raw |>
 costs_raw |> 
   count(plan_type)
 
-# cleaning and transformation steps (adding age_group and risk_score as new variable)
+#---------------------------------------------
+
+# Cleaning and transformation steps:
+
 costs <- costs_raw |> 
+  # managing na-values:
+  # creates missingness indicator variables for each column with NA values (good for regression)
+  mutate(
+    bmi_missing =             if_else(is.na(bmi), 1, 0),
+    annual_checkup_missing =  if_else(is.na(annual_checkups), 1, 0),
+    exercise_level_missing =  if_else(is.na(exercise_level), 1, 0),
+    # imputing columns with NA values
+    bmi =               replace_na(bmi, median(bmi, na.rm = TRUE)),
+    exercise_level =    replace_na(exercise_level, "Unknown"),
+    annual_checkups =   replace_na(
+      annual_checkups, 
+      median(annual_checkups, na.rm = TRUE))
+  ) |> 
+  # trim & to_title -> cleans values
+  # as.factor -> makes categorical values a factor
   mutate(
     sex =               str_trim(sex),
-    sex =               str_trim(sex),
+    sex =               str_to_title(sex),
     region =            str_trim(region),
     region =            str_to_title(region),
     smoker =            str_trim(smoker),
@@ -45,6 +61,7 @@ costs <- costs_raw |>
     exercise_level =    as.factor(exercise_level),
     plan_type =         as.factor(plan_type)
   ) |> 
+  # creates a new variable: age_group 
   mutate(
     age_group = case_when(
       age >= 18 & age <= 30 ~ "18-30",
@@ -60,6 +77,7 @@ costs <- costs_raw |>
       ordered = TRUE
     ) 
   ) |> 
+  # creates a new variable: risk_group
   mutate(
     risk_group = case_when(
       prior_claims == 0 & prior_accidents == 0 ~ "Low",
@@ -67,8 +85,10 @@ costs <- costs_raw |>
       TRUE ~ "Medium"
     )
   )
-  
-# validating cleaning steps
+
+# -------------------------------------------
+# Validation:
+
 costs |> 
   count(sex)
 costs |> 
@@ -82,7 +102,11 @@ costs |>
 costs |> 
   count(plan_type)
 
-# validating new variables
+# validating missing values: 
+
+colSums(is.na(costs))
+
+# validating new variables:
 
 # age_group
 costs |> 
