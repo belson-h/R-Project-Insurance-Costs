@@ -1,29 +1,9 @@
 
-# Data overview
-glimpse(costs_raw)
-summary(costs_raw)
-
-# Checking number of NA per column
-colSums(is.na(costs_raw))
-
-
-# checking number of distinct values per column
-costs_raw |> 
-  count(sex)
-costs_raw |> 
-  count(region)
-costs_raw |> 
-  count(smoker)
-costs_raw |> 
-  count(chronic_condition)
-costs_raw |> 
-  count(exercise_level)
-costs_raw |> 
-  count(plan_type)
-
-#---------------------------------------------
-
 # Cleaning and transformation steps:
+# - manages NA-values
+# - cleans values
+# - converts categorical values to factor
+# - creates new variables: age_group, risk_group
 
 costs <- costs_raw |> 
   # managing na-values:
@@ -87,8 +67,9 @@ costs <- costs_raw |>
   )
 
 # -------------------------------------------
-# Validation:
+# Validating transformation steps:
 
+# Validating values i transformed columns
 costs |> 
   count(sex)
 costs |> 
@@ -102,11 +83,10 @@ costs |>
 costs |> 
   count(plan_type)
 
-# validating missing values: 
-
+# Validating missing values
 colSums(is.na(costs))
 
-# validating new variables:
+# Validating new variables:
 
 # age_group
 costs |> 

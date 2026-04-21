@@ -27,7 +27,9 @@ The analysis was conducted in R and structured across three main stages: data pr
 
 ### Data Preparations
 
-The data set was loaded using the `readr` package and initially inspected using `glimpse()` and `summary()` to understand its structure and variable types. Missing values were identified in three variables: **bmi** (28 missing), **exercise_level** (22 missing), and **annual_checkups** (20 missing). Missing values were handled individually with the planned regression analysis in mind. For each variable containing missing observations, a missingness indicator variable was created, followed by imputation. Missing values in **bmi** and **annual_checkups** were imputed using the median, while missing values in **exercise_level** were replaced with *"Unknown"*.
+The data set was loaded using the `readr` package and initially inspected using `glimpse()` and `summary()` to understand its structure and variable types.
+
+Missing values were identified in three variables: **bmi** (28 missing), **exercise_level** (22 missing), and **annual_checkups** (20 missing). Missing values were handled individually with the planned regression analysis in mind. For each variable containing missing observations, a missingness indicator variable was created, followed by imputation. Missing values in **bmi** and **annual_checkups** were imputed using the median, while missing values in **exercise_level** were replaced with *"Unknown"*.
 
 Further, categorical variables were standardized by trimming whitespace and applying consistent title case formatting, before being converted to factors. A new ordered variable, `age_group`, was created by binning age into five intervals (18–30, 31–40, 41–50, 51–60, 61–75) to support group-level comparisons in the descriptive analysis. In addition, a derived variable, `risk_group`, was created to capture combined risk based on prior insurance history. This variable combines *prior_claims* and *prior_accidents* into a single categorical measure. Policyholders with no prior claims or accidents were classified as **Low** risk, those with two or more claims or accidents as **High** risk, and all others as **Medium** risk.
 
@@ -101,11 +103,11 @@ costs <- costs_raw |>
   )
 ```
 
-### Descriptive Analysis
+## Descriptive Analysis
 
-Summary statistics for the target variable **charges** were computed, including mean, median, standard deviation, min, max, and interquartile range. A range of visualizations were also produced using `ggplot2` to explore the distribution of charges and its relationship with key variables. In the result section, only the visuals showing the strongest predictors will be displayed and discussed. However, the other variables that are not among the strongest predictors on their own may still contribute to the regression models.
+To get a better understanding of the data, a descriptive analysis was conducted. Summary statistics for the target variable **charges** were computed, including mean, median, standard deviation, min, max, and interquartile range. A range of visualizations were also produced using `ggplot2` to explore the distribution of charges and its relationship with key variables. In the result section, only the visuals showing the strongest predictors will be displayed and discussed. However, the other variables that are not among the strongest predictors on their own may still contribute to the regression models.
 
-## Statistical summary
+### Statistical summary
 
 ```{r}
 #| label: statistical summary
@@ -335,6 +337,8 @@ tibble(
 
 **Overall conclusion:** Model 2 is the best model. It explains noticeably more than Model 1, and the interaction between age and smoking that Model 3 tests turns out not to be necessary, at least not in this data set.
 
+## Conclusions
+
 ### Model 2 - Detailed Results
 
 ```{r}
@@ -352,7 +356,7 @@ Regarding *risk group*, policyholders classified as Low or Medium risk have nota
 
 *Note that in all interpretations are made on the basis that each coefficient reflects the effect of that variable while holding all others constant.*
 
-#### Residual vs fitted
+### Residual vs fitted
 
 ```{r}
 #| code-fold: true
@@ -373,7 +377,7 @@ ggplot(model2_diagnostics, aes(x = fitted_value, y = residual)) +
 
 The residuals are roughly centered around zero, which is a good sign. However, the spread increases as fitted values get larger.This means the model is less precise at predicting higher charges, which is worth noting as a limitation. A few outliers with large residuals are also visible, particularly in the mid-to-high range.
 
-#### QQ-plot
+### QQ-plot
 
 ```{r}
 #| code-fold: true
@@ -385,7 +389,7 @@ qqline(resid(model2), col = "tomato")
 
 The residuals follow the reference line closely through the middle of the distribution, suggesting approximate normality for most observations. However, both tails deviate from the line. This indicates that the model tends to underestimate some very low charges and overestimate some very high ones.
 
-#### Actual vs predicted charges
+### Actual vs predicted charges
 
 ```{r}
 #| code-fold: true
@@ -402,18 +406,16 @@ Points close to the dashed reference line indicate accurate predictions. The mod
 
 A few notable outliers are also visible, particularly one observation with very high actual charges, about 32 000, that the model significantly underpredicts. Overall the plot confirms that the model captures the general pattern reasonably well, but is less reliable at the extremes.
 
-## Conclusions
-
-.........
-
 ## Limitations
 
--   Linear regression assumes a straight-line relationship — charges may not behave that way
+1.  Linear regression assumes that the relationship between each predictor and charges is constant and straight. For example, that each additional year of age always adds the same amount of charges. However, in reality this might not be the case. The effect of relationship could accelerate over time or the effect of an relationship might only become relevant over a certain threshold. A linear model will fail to fully capture non-linear relationships, which can lead to systematic predicition errors.
+2.  Linear regression assumes that the residuals are normally distributed. When charges are skewed, in which was visible in the QQ-plot where tails deviated from the reference line, the model's predictions and statistical tests become less reliable, particularly at the extremes of the distribution.
+3.  The model is built on historical data and can only identify which variables are associated with higher charges, but it cannot tell us why. For example, the model shows that smokers have higher charges, but cannot confirm that smoking directly causes the higher costs.
+4.  Variables such as `sex`, `region`, `annual_checkups`, and `children` were left out of the models to keep them more simple. While some of these may have a weak relationship with charges individually, they could still contribute when combined with other variables. A more comprehensive model might include them and potentially explain a larger share of the variation in charges.
+5.  `risk_group` is a simplified derived variable that loses some nuance from the raw claims/accidents data. While combining two variables may make them easier to interpret, it comes with a cost of detail. Using the raw variables separately, or a more granular scoring approach, might capture risk more accurately.
 
--   Right-skewed charges can violate normality assumptions (visible in QQ-plot)
+## Self-reflection 
 
--   The model can only find correlations in historical data, not causation
+I am satisfied with the structured approach I took throughout the project, primarily for the regression analysis, starting with a simple baseline model and iteratively building on it. I also enjoyed learning how to use Quarto to build my report. The most challenging part was the coding, I usually have a clear idea of what I want to do analytically, but translating that into working R code remains the hardest part for me.
 
--   Some variables were excluded for simplicity — a real model might include them
-
--   `risk_group` is a simplified derived variable that loses some nuance from the raw claims/accidents data
+I believe this submission meets the VG criteria. I fulfil all baseline requirements for Godkänd, and go beyond them by comparing multiple regression models, motivating model choices, and critically discussing model fit, limitations and possible improvements, which I see as aligned with the deeper level of understanding the VG grade requires.

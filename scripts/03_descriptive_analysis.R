@@ -1,9 +1,9 @@
-# Du ska skapa minst 4 relevanta figurer och/eller tabeller, och varje figur eller tabell ska följas av en kort tolkning.
-# Question 1: How costs are distributed?
-# Question 2: What variables are interesting to further explore?
-# Question 3: If there are interesting distinctions between groups?
+# The descriptive analysis aims to answer the following questions: 
+# - How costs are distributed?
+# - What variables are interesting to further explore?
+# - If there are interesting distinctions between groups?
 
-# Summary statistics table (missing values removed)
+# Creates a summary statistics table (any missing values removed)
 
 charges_summary <- costs |>
   summarise(
