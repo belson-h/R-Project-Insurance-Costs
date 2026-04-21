@@ -414,7 +414,7 @@ A few notable outliers are also visible, particularly one observation with very 
 4.  Variables such as `sex`, `region`, `annual_checkups`, and `children` were left out of the models to keep them more simple. While some of these may have a weak relationship with charges individually, they could still contribute when combined with other variables. A more comprehensive model might include them and potentially explain a larger share of the variation in charges.
 5.  `risk_group` is a simplified derived variable that loses some nuance from the raw claims/accidents data. While combining two variables may make them easier to interpret, it comes with a cost of detail. Using the raw variables separately, or a more granular scoring approach, might capture risk more accurately.
 
-## Self-reflection 
+## Self-reflection
 
 I am satisfied with the structured approach I took throughout the project, primarily for the regression analysis, starting with a simple baseline model and iteratively building on it. I also enjoyed learning how to use Quarto to build my report. The most challenging part was the coding, I usually have a clear idea of what I want to do analytically, but translating that into working R code remains the hardest part for me.
 
