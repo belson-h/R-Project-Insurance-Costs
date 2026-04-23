@@ -1,6 +1,6 @@
 # R-Project-Insurance-Costs
 
-**Case:** Insurance Costs – Analysis of Factors Related to Costs
+**Case:** Insurance Costs - Analysis of Factors Related to Costs
 
 In this project I act as an analyst at an insurance company. The company has historical data on customers and costs, and wants to better understand whether pricing seems to follow reasonable patterns and which factors drive costs the most. They also want to investigate whether a regression model can be used to support future pricing of similar customers.
 

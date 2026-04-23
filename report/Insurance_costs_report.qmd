@@ -6,11 +6,14 @@ format:
   html: 
     theme: lux
     fig-align: left
-  #pdf: default
+  pdf: default
 editor: visual
 # global options for rending
-execute: 
-  echo: true
+execute:
+  echo: false
+  output: true
+  warning: false
+  message: false
 ---
 
 ## Introduction
@@ -111,7 +114,6 @@ To get a better understanding of the data, a descriptive analysis was conducted.
 
 ```{r}
 #| label: statistical summary
-#| code-fold: true
 
 costs |>
   summarise(
@@ -138,7 +140,6 @@ The dataset contains 1,100 observations. Insurance charges range from 1,204 to 3
 
 ```{r}
 #| label: distribution of charges
-#| code-fold: true
 
 ggplot(costs, aes(x = charges)) +
   geom_histogram(bins = 40, fill = "turquoise", color = "white") +
@@ -154,7 +155,6 @@ The histogram confirms the right-skewed distribution noted in the summary statis
 #### Charges by insurance plan type
 
 ```{r}
-#| code-fold: true
 #| label: Charges by insurance plan type
 
 ggplot(costs, aes(x = plan_type, y = charges, fill = plan_type)) +
@@ -170,7 +170,6 @@ Charges by insurance plan type show that Premium plan customers tend to have som
 #### Charges by smoking status
 
 ```{r}
-#| code-fold: true
 #| label: Charges by smoking status
 
 ggplot(costs, aes(x = smoker, y = charges, fill = smoker)) +
@@ -186,7 +185,6 @@ Smoking status shows one of the clearest group differences in the dataset. Smoke
 #### Charges by chronic condition
 
 ```{r}
-#| code-fold: true
 #| label: Charges by chronic condition
 
 ggplot(costs, aes(x = chronic_condition, y = charges, fill = chronic_condition)) +
@@ -203,7 +201,6 @@ Customers with a chronic condition show notably higher charges than those withou
 #### Charges by age group
 
 ```{r}
-#| code-fold: true
 #| label: Charges by age group
 
 ggplot(costs, aes(x = age_group, y = charges, fill = age_group)) +
@@ -219,7 +216,6 @@ Charges show a clear upward trend across age groups, with median charges rising 
 #### Charges by risk group
 
 ```{r}
-#| code-fold: true
 #| label: Charges by risk group
 
 ggplot(costs, aes(x = risk_group, y = charges, fill = risk_group)) +
@@ -239,7 +235,6 @@ It should be noted however that the thresholds used to define the groups are man
 #### Age against charges with smoking status
 
 ```{r}
-#| code-fold: true
 #| label: Age vs charges (with smoker status)
 
 ggplot(costs, aes(x = age, y = charges, color = smoker)) +
@@ -253,7 +248,6 @@ The scatter plot of age against charges, colored by smoking status, reveals two 
 #### Age against charges with chronic condition
 
 ```{r}
-#| code-fold: true
 #| label: Age vs charges (with chronic condition status)
 
 ggplot(costs, aes(x = age, y = charges, color = chronic_condition)) +
@@ -268,9 +262,7 @@ When grouping by chronic condition, the separation between groups is less pronou
 #### Bmi against charges
 
 ```{r}
-#| code-fold: true
 #| label: Bmi vs charges
-#| warning: false
 
 ggplot(costs, aes(x = bmi, y = charges)) +
   geom_point(alpha = 0.4) + 
@@ -293,7 +285,6 @@ The descriptive analysis indicated that three variables had a particularly stron
 Variables such as `sex`, `region`, and `annual_checkups` were excluded to keep the model interpretable, and because their theoretical link to individual charges was considered weaker or more ambiguous.
 
 ```{r}
-#| code-fold: true
 #| label: Regression models
 
 model1 <- lm(charges ~ age + smoker + chronic_condition, data = costs)
@@ -314,7 +305,6 @@ The three models are compared against each other using adjusted R² and AIC (Aka
 AIC balances how well the model is fitted against model complexity, where a lower value indicates a better model. It is particularly useful when comparing models of different sizes, as it penalises unnecessary complexity.
 
 ```{r}
-#| code-fold: true
 #| label: Model Comparison - Adjusted R² and AIC
 
 tibble(
@@ -337,16 +327,9 @@ tibble(
 
 **Overall conclusion:** Model 2 is the best model. It explains noticeably more than Model 1, and the interaction between age and smoking that Model 3 tests turns out not to be necessary, at least not in this data set.
 
-## Conclusions
+## Model Conclusions
 
 ### Model 2 - Detailed Results
-
-```{r}
-#| code-fold: true
-#| label: Summary - Model 2
-
-summary(model2)
-```
 
 Model 2 explains 74% of the variation in insurance charges, and the overall model is highly significant (p \< 0.001). All included predictors were statistically significant, suggesting that each variable contributes meaningfully to predicting charges.
 
@@ -359,7 +342,6 @@ Regarding *risk group*, policyholders classified as Low or Medium risk have nota
 ### Residual vs fitted
 
 ```{r}
-#| code-fold: true
 #| label: Residual vs fitted - Model 2
 
 # model2$model manages NA as it only contains the rows lm() actually used
@@ -380,7 +362,6 @@ The residuals are roughly centered around zero, which is a good sign. However, t
 ### QQ-plot
 
 ```{r}
-#| code-fold: true
 #| label: QQ-plot - Model 2
 
 qqnorm(resid(model2))
@@ -392,7 +373,6 @@ The residuals follow the reference line closely through the middle of the distri
 ### Actual vs predicted charges
 
 ```{r}
-#| code-fold: true
 #| label: Actual vs predicted charges - Model 2
 
 ggplot (model2_diagnostics, aes(x = charges, y = fitted_value)) +
@@ -408,7 +388,7 @@ A few notable outliers are also visible, particularly one observation with very 
 
 ## Limitations
 
-1.  Linear regression assumes that the relationship between each predictor and charges is constant and straight. For example, that each additional year of age always adds the same amount of charges. However, in reality this might not be the case. The effect of relationship could accelerate over time or the effect of an relationship might only become relevant over a certain threshold. A linear model will fail to fully capture non-linear relationships, which can lead to systematic predicition errors.
+1.  Linear regression assumes that the relationship between each predictor and charges is constant and straight. For example, that each additional year of age always adds the same amount of charges. However, in reality this might not be the case. The effect of relationship could accelerate over time or the effect of an relationship might only become relevant over a certain threshold. A linear model will fail to fully capture non-linear relationships, which can lead to systematic prediction errors.
 2.  Linear regression assumes that the residuals are normally distributed. When charges are skewed, in which was visible in the QQ-plot where tails deviated from the reference line, the model's predictions and statistical tests become less reliable, particularly at the extremes of the distribution.
 3.  The model is built on historical data and can only identify which variables are associated with higher charges, but it cannot tell us why. For example, the model shows that smokers have higher charges, but cannot confirm that smoking directly causes the higher costs.
 4.  Variables such as `sex`, `region`, `annual_checkups`, and `children` were left out of the models to keep them more simple. While some of these may have a weak relationship with charges individually, they could still contribute when combined with other variables. A more comprehensive model might include them and potentially explain a larger share of the variation in charges.
@@ -416,6 +396,6 @@ A few notable outliers are also visible, particularly one observation with very 
 
 ## Self-reflection
 
-I am satisfied with the structured approach I took throughout the project, primarily for the regression analysis, starting with a simple baseline model and iteratively building on it. I also enjoyed learning how to use Quarto to build my report. The most challenging part was the coding, I usually have a clear idea of what I want to do analytically, but translating that into working R code remains the hardest part for me.
+I am satisfied with the structured approach I took throughout the project, primarily for the regression analysis, starting with a simple baseline model and building further on it. I also enjoyed learning how to use Quarto to build my report. The most challenging part was the coding, I usually have a clear idea of what I want to do analytically, but translating that into working R code remains the hardest part for me.
 
-I believe this submission meets the VG criteria. I fulfil all baseline requirements for Godkänd, and go beyond them by comparing multiple regression models, motivating model choices, and critically discussing model fit, limitations and possible improvements, which I see as aligned with the deeper level of understanding the VG grade requires.
+I believe this submission meets the VG criteria. I fulfill all baseline requirements for Godkänd, and go beyond them by comparing multiple regression models, motivating model choices, and critically discussing model fit, limitations and possible improvements, which I see as aligned with the deeper level of understanding the VG grade requires.
