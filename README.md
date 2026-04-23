@@ -72,7 +72,7 @@ install.packages(c("tidyverse", "patchwork"))
     quarto::quarto_render("report/insurance_costs_report.qmd")
     ```
 
-5.   Read `insurance_costs_report.pdf` for a summarized report of the findings.
+5.   Or read `insurance_costs_report.pdf` for a summarized report.
 
 ## Enviroment
 
